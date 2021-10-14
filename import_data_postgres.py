@@ -1,6 +1,8 @@
 import psycopg2
+from decouple import config
 
-password = "hBx3uYyRw4"
+
+password = config('PASSWORD')
 connection = psycopg2.connect(host="localhost", port=5432, dbname='postgres', user='postgres', password=password)
 
 connection.autocommit = True
