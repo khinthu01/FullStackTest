@@ -1,17 +1,17 @@
 import psycopg2
 
 password = "hBx3uYyRw4"
-# connection = psycopg2.connect(host="localhost", port=5432, dbname='postgres', user='postgres', password=password)
+connection = psycopg2.connect(host="localhost", port=5432, dbname='postgres', user='postgres', password=password)
 
-# connection.autocommit = True
-# db_cursor = connection.cursor()
+connection.autocommit = True
+db_cursor = connection.cursor()
 
-# db_sql = '''CREATE database customerOrders'''
+db_sql = '''CREATE database customerOrders'''
 
-# db_cursor.execute(db_sql)
+db_cursor.execute(db_sql)
 
-# db_cursor.close()
-# connection.close()
+db_cursor.close()
+connection.close()
 
 connection = psycopg2.connect(host="localhost", port=5432, dbname='customerorders', user='postgres', password=password)
 
