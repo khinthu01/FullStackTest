@@ -149,7 +149,7 @@ func allCustomers() []Customer {
 func allOrders() []Order {
 	password := os.Getenv("PASSWORD")
 
-	fmt.Println(password)
+	fmt.Printf("password: %s", password)
 		
 	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 	db, err := sql.Open("postgres", psqlconn)
@@ -216,7 +216,9 @@ func handleRequests() {
 
 func main() {
 
-	
+	password := os.Getenv("PASSWORD")
+
+	fmt.Printf("password: %s", password)
 
 	handleRequests()
 
