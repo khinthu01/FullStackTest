@@ -1,4 +1,4 @@
-module github.com/khinthu01/Coding-test/backend
+module github.com/khinthu01/Coding-test
 
 go 1.17
 
