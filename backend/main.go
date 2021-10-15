@@ -25,15 +25,18 @@ import (
 // 	TotalAmount float64 `json:"Total Amount"`
 // }
 
-type Order struct {
-	id int32 `json:"id"`
-	createdAt string `json:"created_at"`
-	orderName string `json:"order_name"`
-	customerID string `json:"customer_id"`
+type CustomerCompany struct {
+	companyID int32 `json:"Company ID"`
+	CompanyName string `json:"Company Name"`
 }
 
-func allOrders(w http.ResponseWriter, r *http.Request) {
-	// Set client options
+type Customer struct {
+	Name string `json:"Customer Name"`
+	companyID int32 `json:"Company ID"`
+}
+
+func allCompanies() []CustomerCompany {
+
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 
 	// Connect to MongoDB
@@ -50,39 +53,93 @@ func allOrders(w http.ResponseWriter, r *http.Request) {
     	log.Fatal(err)
 	}
 
-	// fmt.Println("Connected to MongoDB!")
+	companiesCol := client.Database("CustomerOrders").Collection("customer_companies")
 
-	collection := client.Database("CustomerOrders").Collection("orders")
-
-	
-
-	cur, err := collection.Find(context.TODO(), bson.M{})
+	companiesCur, err := companiesCol.Find(context.TODO(), bson.M{})
 	if err != nil {
     	log.Fatal(err)
 	}
 
 	
 	// Close the cursor once finished
-	defer cur.Close(context.TODO())
+	defer companiesCur.Close(context.TODO())
 
-	var orderRes []bson.M
-	var orders []Order
+	var companies []CustomerCompany
 
-	for cur.Next(context.TODO()) {
-		var orderItem bson.M
-		if err = cur.Decode(&orderItem); err != nil {
+	for companiesCur.Next(context.TODO()) {
+		var companyItem bson.M
+		if err = companiesCur.Decode(&companyItem); err != nil {
 			log.Fatal(err)
 		}
-		orderRes = append(orderRes, orderItem)
 
-		var order Order = Order{id: orderItem["id"].(int32), createdAt: orderItem["created_at"].(string), orderName: orderItem["order_name"].(string), customerID: orderItem["customer_id"].(string)}
+		var company CustomerCompany = CustomerCompany{CompanyID: companyItem["company_id"].(int32), CompanyName: companyItem["company_name"].(string)}
 
-		orders = append(orders, order)
+		companies = append(companies, company)
 		
 	}
+    
+	return companies
+}
 
-	fmt.Println(orders)
-	json.NewEncoder(w).Encode(orders)
+func allCustomers() []Customer {
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+
+	// Connect to MongoDB
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+
+	if err != nil {
+    	log.Fatal(err)
+	}
+
+	// Check the connection
+	err = client.Ping(context.TODO(), nil)
+
+	if err != nil {
+    	log.Fatal(err)
+	}
+
+	customersCol := client.Database("CustomerOrders").Collection("customers")
+
+	customersCur, err := customersCol.Find(context.TODO(), bson.M{})
+	if err != nil {
+    	log.Fatal(err)
+	}
+
+	
+	// Close the cursor once finished
+	defer customersCur.Close(context.TODO())
+
+	var customers []Customer
+
+	for customersCur.Next(context.TODO()) {
+		var customerItem bson.M
+		if err = customersCur.Decode(&customerItem); err != nil {
+			log.Fatal(err)
+		}
+
+		var customer Customer = Customer{Name: customerItem["name"].(string), companyID: customerItem["company_id"].(int32)}
+
+		customers = append(customers, customer)
+		
+	}
+    
+	return customers
+}
+
+func displayCompanies(w http.ResponseWriter, r *http.Request) {
+	companies := allCompanies()
+	enc := json.NewEncoder(w)
+	enc.SetEscapeHTML(false)
+	enc.Encode(companies)
+
+}
+
+func displayCustomers(w http.ResponseWriter, r *http.Request) {
+	customers := allCustomers()
+	enc := json.NewEncoder(w)
+	enc.SetEscapeHTML(false)
+	enc.Encode(customers)
+
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
@@ -94,10 +151,13 @@ func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
 
 	myRouter.HandleFunc("/", homePage)
-	myRouter.HandleFunc("/orders", allOrders)
+	myRouter.HandleFunc("/companies", displayCompanies)
+	myRouter.HandleFunc("/customers", displayCustomers)
 	log.Fatal(http.ListenAndServe(":8081", myRouter))
 }
 
 func main() {
-	handleRequests()	
+	handleRequests()
+		
+
 }

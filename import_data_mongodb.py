@@ -22,5 +22,4 @@ if __name__ == "__main__":
     mongodb = MongoDB(dBName = 'CustomerOrders')
     mongodb.insertData('test_data (2)/test_data (2)/Test task - Mongo - customer_companies.csv', collectionName= 'customer_companies')
     mongodb.insertData('test_data (2)/test_data (2)/Test task - Mongo - customers.csv', collectionName= 'customers')
-    mongodb.insertData('test_data (2)/test_data (2)/Test task - Orders.csv', collectionName='orders')
     
