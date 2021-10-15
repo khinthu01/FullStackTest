@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import pandas as pd
-import json
+
 
 class MongoDB():
     def __init__(self, dBName):
