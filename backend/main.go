@@ -6,12 +6,17 @@ import (
 	"log"
 	"net/http"
 	"encoding/json"
+	"time"
+	"os"
 
 	"github.com/gorilla/mux"
 
 	"go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/mongo/options"
+
+	"database/sql"
+	_ "github.com/lib/pq"
 )
 
 
@@ -34,6 +39,20 @@ type Customer struct {
 	Name string `json:"Customer Name"`
 	companyID int32 `json:"Company ID"`
 }
+
+type Order struct {
+	id int32 `json:"id"`
+	CreatedAt time.Time `json:"Created at"`
+	OrderName string `json:"Order Name"`
+	customerID string `json:"Customer ID"`
+}
+
+const (
+	host = "localhost"
+	port = 5432
+	user = "postgres"
+	dbname = "customerorders"
+)
 
 func allCompanies() []CustomerCompany {
 
@@ -126,6 +145,37 @@ func allCustomers() []Customer {
 	return customers
 }
 
+
+func allOrders() []Order {
+	password := os.Getenv("PASSWORD")
+
+	fmt.Println(password)
+		
+	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	db, err := sql.Open("postgres", psqlconn)
+	if err != nil {
+    	log.Fatal(err)
+	}
+
+	rows, err := db.Query("SELECT * FROM public.orders")
+	if err != nil {
+    	log.Fatal(err)
+	}
+
+	defer rows.Close()
+
+	var orders []Order
+
+	for rows.Next() {
+		var order Order
+		rows.Scan(&order.id, &order.CreatedAt, &order.OrderName, &order.customerID)
+
+		orders = append(orders, order)
+	}
+
+	return orders
+}
+
 func displayCompanies(w http.ResponseWriter, r *http.Request) {
 	companies := allCompanies()
 	enc := json.NewEncoder(w)
@@ -142,6 +192,13 @@ func displayCustomers(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func displayOrders(w http.ResponseWriter, r *http.Request) {
+	orders := allOrders()
+	enc := json.NewEncoder(w)
+	enc.SetEscapeHTML(false)
+	enc.Encode(orders)
+}
+
 func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Home Endpoint Hit")
 }
@@ -153,11 +210,15 @@ func handleRequests() {
 	myRouter.HandleFunc("/", homePage)
 	myRouter.HandleFunc("/companies", displayCompanies)
 	myRouter.HandleFunc("/customers", displayCustomers)
+	myRouter.HandleFunc("/orders", displayOrders)
 	log.Fatal(http.ListenAndServe(":8081", myRouter))
 }
 
 func main() {
-	handleRequests()
-		
 
+	
+
+	handleRequests()
+
+	
 }
