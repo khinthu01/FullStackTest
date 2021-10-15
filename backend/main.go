@@ -72,7 +72,7 @@ func allCompanies() []CustomerCompany {
 			log.Fatal(err)
 		}
 
-		var company CustomerCompany = CustomerCompany{CompanyID: companyItem["company_id"].(int32), CompanyName: companyItem["company_name"].(string)}
+		var company CustomerCompany = CustomerCompany{companyID: companyItem["company_id"].(int32), CompanyName: companyItem["company_name"].(string)}
 
 		companies = append(companies, company)
 		
