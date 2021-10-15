@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"encoding/json"
 	"time"
-	"os"
 
 	"github.com/gorilla/mux"
 
@@ -21,30 +20,45 @@ import (
 
 
 
-// type Order struct {
-// 	OrderName string `json:"Order name"`
-// 	CustomerCompany string `json:"Customer Company"`
-// 	CustomerName string `json:"Customer name"`
-// 	OrderDate time.Time `json:"Order date"`
-// 	DeliveredAmount float64 `json:"Delivered Amount"`
-// 	TotalAmount float64 `json:"Total Amount"`
-// }
+type ListItem struct {
+	OrderName string `json:"Order name"`
+	CustomerCompany string `json:"Customer Company"`
+	CustomerName string `json:"Customer name"`
+	OrderDate time.Time `json:"Order date"`
+	DeliveredAmount float64 `json:"Delivered Amount"`
+	TotalAmount float64 `json:"Total Amount"`
+}
 
 type CustomerCompany struct {
-	companyID int32 `json:"Company ID"`
+	companyId int32 `json:"Company ID"`
 	CompanyName string `json:"Company Name"`
 }
 
 type Customer struct {
+	UserId string `json:Customer Id`
 	Name string `json:"Customer Name"`
-	companyID int32 `json:"Company ID"`
+	companyId int32 `json:"Company ID"`
+}
+
+type Delivery struct {
+	Id int32 `json:"id"`
+	orderItemId int32 `json:"Order Item ID"`
+	DeliveredQuantity int32 `json:"Delivered Quantity"`
+}
+
+type OrderItem struct {
+	id int32 `json:"ID"`
+	OrderId int32 `json:"Order ID"`
+	unitPrice float64 `json:"Unit Price"`
+	Quantity int32 `json:"Quantity"`
+	Product int32 `json:"Product"`
 }
 
 type Order struct {
-	id int32 `json:"id"`
+	Id int32 `json:"id"`
 	CreatedAt time.Time `json:"Created at"`
 	OrderName string `json:"Order Name"`
-	customerID string `json:"Customer ID"`
+	customerId string `json:"Customer ID"`
 }
 
 const (
@@ -52,6 +66,7 @@ const (
 	port = 5432
 	user = "postgres"
 	dbname = "customerorders"
+	password = "hBx3uYyRw4"
 )
 
 func allCompanies() []CustomerCompany {
@@ -91,7 +106,7 @@ func allCompanies() []CustomerCompany {
 			log.Fatal(err)
 		}
 
-		var company CustomerCompany = CustomerCompany{companyID: companyItem["company_id"].(int32), CompanyName: companyItem["company_name"].(string)}
+		var company CustomerCompany = CustomerCompany{companyId: companyItem["company_id"].(int32), CompanyName: companyItem["company_name"].(string)}
 
 		companies = append(companies, company)
 		
@@ -136,7 +151,7 @@ func allCustomers() []Customer {
 			log.Fatal(err)
 		}
 
-		var customer Customer = Customer{Name: customerItem["name"].(string), companyID: customerItem["company_id"].(int32)}
+		var customer Customer = Customer{UserId: customerItem["user_id"].(string), Name: customerItem["name"].(string), companyId: customerItem["company_id"].(int32)}
 
 		customers = append(customers, customer)
 		
@@ -146,10 +161,7 @@ func allCustomers() []Customer {
 }
 
 
-func allOrders() []Order {
-	password := os.Getenv("PASSWORD")
-
-	fmt.Printf("password: %s", password)
+func allOrders() ([]Delivery, []OrderItem, []Order) {
 		
 	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 	db, err := sql.Open("postgres", psqlconn)
@@ -157,7 +169,42 @@ func allOrders() []Order {
     	log.Fatal(err)
 	}
 
-	rows, err := db.Query("SELECT * FROM public.orders")
+	// retriving deliveries
+	rows, err := db.Query("SELECT * FROM public.deliveries")
+	if err != nil {
+    	log.Fatal(err)
+	}
+
+	defer rows.Close()
+
+	var deliveries []Delivery
+
+	for rows.Next() {
+		var delivery Delivery
+		rows.Scan(&delivery.Id, &delivery.orderItemId, &delivery.DeliveredQuantity)
+
+		deliveries = append(deliveries, delivery)
+	}
+
+	// retriving order items
+	rows, err = db.Query("SELECT * FROM public.order_items")
+	if err != nil {
+    	log.Fatal(err)
+	}
+
+	defer rows.Close()
+
+	var orderItems []OrderItem
+
+	for rows.Next() {
+		var orderItem OrderItem
+		rows.Scan(&orderItem.id, &orderItem.OrderId, &orderItem.unitPrice, &orderItem.Quantity, &orderItem.Product)
+
+		orderItems = append(orderItems, orderItem)
+	}
+
+	// retriving orders
+	rows, err = db.Query("SELECT * FROM public.orders")
 	if err != nil {
     	log.Fatal(err)
 	}
@@ -168,12 +215,12 @@ func allOrders() []Order {
 
 	for rows.Next() {
 		var order Order
-		rows.Scan(&order.id, &order.CreatedAt, &order.OrderName, &order.customerID)
+		rows.Scan(&order.Id, &order.CreatedAt, &order.OrderName, &order.customerId)
 
 		orders = append(orders, order)
 	}
 
-	return orders
+	return deliveries, orderItems, orders
 }
 
 func displayCompanies(w http.ResponseWriter, r *http.Request) {
@@ -193,10 +240,64 @@ func displayCustomers(w http.ResponseWriter, r *http.Request) {
 }
 
 func displayOrders(w http.ResponseWriter, r *http.Request) {
-	orders := allOrders()
+	deliveries, orderItems, orders := allOrders()
 	enc := json.NewEncoder(w)
 	enc.SetEscapeHTML(false)
+	enc.Encode(deliveries)
+	enc.Encode(orderItems)
 	enc.Encode(orders)
+	
+}
+
+func displayOrderList(w http.ResponseWriter, r *http.Request) {
+	companies := allCompanies()
+	customers := allCustomers()
+	deliveries, orderItems, orders := allOrders()
+
+	fmt.Println(deliveries)
+
+	var orderList []ListItem
+
+	for _, value := range orderItems {
+		var index int
+		for i := range orders {
+			if orders[i].Id == value.OrderId {
+				index = i
+				break
+			}
+		}
+		orderName := orders[index].OrderName
+		orderDate := orders[index].CreatedAt
+		customerId := orders[index].customerId
+
+		for i := range customers {
+			if customers[i].UserId == customerId {
+				index = i
+				break
+			}
+		}
+
+		customerName := customers[index].Name
+		companyId := customers[index].companyId
+
+		for i := range companies {
+			if companies[i].companyId == companyId {
+				index = i
+				break
+			}
+		}
+
+		companyName := companies[index].CompanyName
+		quantity := float64(value.Quantity)*value.unitPrice
+
+		listItem := ListItem{OrderName: orderName, CustomerCompany: companyName, CustomerName: customerName, OrderDate: orderDate, DeliveredAmount: quantity, TotalAmount: quantity}
+
+		orderList = append(orderList, listItem)
+	}
+
+	enc := json.NewEncoder(w)
+	enc.SetEscapeHTML(false)
+	enc.Encode(orderList)
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
@@ -211,16 +312,10 @@ func handleRequests() {
 	myRouter.HandleFunc("/companies", displayCompanies)
 	myRouter.HandleFunc("/customers", displayCustomers)
 	myRouter.HandleFunc("/orders", displayOrders)
+	myRouter.HandleFunc("/orderList", displayOrderList).Methods("GET")
 	log.Fatal(http.ListenAndServe(":8081", myRouter))
 }
 
 func main() {
-
-	password := os.Getenv("PASSWORD")
-
-	fmt.Printf("password: %s", password)
-
-	handleRequests()
-
-	
+	handleRequests()	
 }
