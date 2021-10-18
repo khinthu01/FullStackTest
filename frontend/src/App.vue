@@ -1,17 +1,20 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <img alt="Vue logo" src="./assets/logo.png" />
+  <div id="App"></div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  name: "App",
+  components: {},
+  async getOrders() {
+    const res = await fetch("http://localhost:8080/orderList");
+    const { orders } = await res.json();
+
+    console.log(orders);
+    return { orders };
+  },
+};
 </script>
 
 <style>
