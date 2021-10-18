@@ -22,12 +22,12 @@ import (
 
 
 type ListItem struct {
-	OrderName string `json:"Order name"`
-	CustomerCompany string `json:"Customer Company"`
-	CustomerName string `json:"Customer name"`
-	OrderDate time.Time `json:"Order date"`
-	DeliveredAmount float64 `json:"Delivered Amount"`
-	TotalAmount float64 `json:"Total Amount"`
+	OrderName string `json:"OrderName"`
+	CustomerCompany string `json:"CustomerCompany"`
+	CustomerName string `json:"CustomerName"`
+	OrderDate time.Time `json:"OrderDate"`
+	DeliveredAmount float64 `json:"DeliveredAmount"`
+	TotalAmount float64 `json:"TotalAmount"`
 }
 
 type CustomerCompany struct {
@@ -296,6 +296,7 @@ func displayOrderList(w http.ResponseWriter, r *http.Request) {
 		orderList = append(orderList, listItem)
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	enc := json.NewEncoder(w)
 	enc.SetEscapeHTML(false)
 	enc.Encode(orderList)
@@ -313,7 +314,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/companies", displayCompanies)
 	myRouter.HandleFunc("/customers", displayCustomers)
 	myRouter.HandleFunc("/orders", displayOrders)
-	myRouter.HandleFunc("/orderList", displayOrderList).Methods("GET")
+	myRouter.HandleFunc("/orderList", displayOrderList).Methods("GET", "OPTIONS")
 	log.Fatal(http.ListenAndServe(":8080", myRouter))
 }
 

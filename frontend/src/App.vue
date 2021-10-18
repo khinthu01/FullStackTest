@@ -1,18 +1,28 @@
 <template>
   <img alt="Vue logo" src="./assets/logo.png" />
-  <div id="App"></div>
+  <Table :orders="orders" />
 </template>
 
 <script>
+import axios from "axios";
+import Table from "./components/Table";
+
 export default {
   name: "App",
-  components: {},
-  async getOrders() {
-    const res = await fetch("http://localhost:8080/orderList");
-    const { orders } = await res.json();
-
-    console.log(orders);
-    return { orders };
+  components: {
+    Table,
+  },
+  data() {
+    return {
+      orders: [],
+    };
+  },
+  async created() {
+    const res = await axios.get("http://localhost:8080/orderList", {
+      responseType: "json",
+    });
+    const orders = res.data;
+    this.orders = orders;
   },
 };
 </script>
