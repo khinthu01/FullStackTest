@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <table class="table table-striped table-bordered">
+    <table>
       <thead>
         <th>Order name</th>
         <th>Customer Company</th>
@@ -31,6 +31,17 @@ export default {
 </script>
 
 <style>
-.container {
+table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+td,
+th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+tr:hover {
+  background-color: #ddd;
 }
 </style>
