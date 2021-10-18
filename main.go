@@ -2,19 +2,20 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"encoding/json"
 	"time"
 
 	"github.com/gorilla/mux"
 
 	"go.mongodb.org/mongo-driver/bson"
-    "go.mongodb.org/mongo-driver/mongo"
-    "go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"database/sql"
+
 	_ "github.com/lib/pq"
 )
 
@@ -313,7 +314,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/customers", displayCustomers)
 	myRouter.HandleFunc("/orders", displayOrders)
 	myRouter.HandleFunc("/orderList", displayOrderList).Methods("GET")
-	log.Fatal(http.ListenAndServe(":8081", myRouter))
+	log.Fatal(http.ListenAndServe(":8080", myRouter))
 }
 
 func main() {
