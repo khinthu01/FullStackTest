@@ -1,4 +1,5 @@
 <template>
+  <input type="text" v-model="search" placeholder="search orders" />
   <Table :currentPageItems="currentPageItems" />
   <span>Page:</span>
   <button
@@ -26,6 +27,7 @@ export default {
       currentPage: 1,
       itemsPerPage: 5,
       orders: [],
+      search: "",
     };
   },
   async created() {
@@ -36,16 +38,24 @@ export default {
     this.orders = orders;
   },
   computed: {
+    filteredOrders() {
+      return this.orders.filter((order) => {
+        return [order.OrderName.match(this.search)];
+      });
+    },
     paginatedItems() {
       let page = 1;
       return [].concat.apply(
         [],
-        this.orders.map((item, index) =>
+        this.filteredOrders.map((item, index) =>
           index % this.itemsPerPage
             ? []
             : {
                 page: page++,
-                orders: this.orders.slice(index, index + this.itemsPerPage),
+                orders: this.filteredOrders.slice(
+                  index,
+                  index + this.itemsPerPage
+                ),
               }
         )
       );
