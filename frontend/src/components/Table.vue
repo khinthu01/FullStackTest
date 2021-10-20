@@ -10,7 +10,7 @@
         <th>Total Amount</th>
       </thead>
       <tbody>
-        <tr v-for="order in orders" :key="order['OrderName']">
+        <tr v-for="order in currentPageItems" :key="order['OrderName']">
           <td>{{ order["OrderName"] }}</td>
           <td>{{ order["CustomerCompany"] }}</td>
           <td>{{ order["CustomerName"] }}</td>
@@ -26,7 +26,7 @@
 <script>
 export default {
   name: "Table",
-  props: { orders: Array },
+  props: { orders: Array, currentPageItems: Array },
 };
 </script>
 

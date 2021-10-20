@@ -1,5 +1,15 @@
 <template>
-  <Table :orders="orders" />
+  <Table :currentPageItems="currentPageItems" />
+  <span>Page:</span>
+  <button
+    v-for="i in paginatedItems.length"
+    :key="i"
+    class="btn btn-secondary mr-1"
+    :class="{ 'btn-success': currentPage === i }"
+    @click="changePage(i)"
+  >
+    {{ i }}
+  </button>
 </template>
 
 <script>
@@ -13,6 +23,8 @@ export default {
   },
   data() {
     return {
+      currentPage: 1,
+      itemsPerPage: 5,
       orders: [],
     };
   },
@@ -22,6 +34,35 @@ export default {
     });
     const orders = res.data;
     this.orders = orders;
+  },
+  computed: {
+    paginatedItems() {
+      let page = 1;
+      return [].concat.apply(
+        [],
+        this.orders.map((item, index) =>
+          index % this.itemsPerPage
+            ? []
+            : {
+                page: page++,
+                orders: this.orders.slice(index, index + this.itemsPerPage),
+              }
+        )
+      );
+    },
+    currentPageItems() {
+      let currentPageItems = this.paginatedItems.find(
+        (pages) => pages.page == this.currentPage
+      );
+      return currentPageItems ? currentPageItems.orders : [];
+    },
+  },
+  methods: {
+    changePage(pageNumber) {
+      if (pageNumber != this.currentPage) {
+        this.currentPage = pageNumber;
+      }
+    },
   },
 };
 </script>
