@@ -23,6 +23,7 @@ type Order struct {
 	TotalAmount float64 `json:"TotalAmount"`
 }
 
+// details required to connect to postgres database
 const (
 	host = "localhost"
 	port = 5432
@@ -48,8 +49,9 @@ func main() {
 
 		sql := "SELECT * from public.orderlist"
 
-		s := c.Query("s")
-		start := c.Query("start")
+		// search query
+		s := c.Query("s") // search by order name
+		start := c.Query("start") // filter by order dates
 		end := c.Query("end")
 		
 		if s != "" && start != "" && end != "" {
