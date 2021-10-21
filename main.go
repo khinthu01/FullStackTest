@@ -29,7 +29,7 @@ const (
 	port = 5432
 	user = "postgres"
 	dbname = "customerorders"
-	password = "hBx3uYyRw4"
+	password = "#password"
 )
 
 
