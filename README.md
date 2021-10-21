@@ -25,7 +25,7 @@ go get github.com/gofiber/fiber/v2
 ```
 
 ```
-github.com/lib/pq
+go get github.com/lib/pq
 ```
 
 ```
