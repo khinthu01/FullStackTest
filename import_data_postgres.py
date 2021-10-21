@@ -8,7 +8,7 @@ connection = psycopg2.connect(host="localhost", port=5432, dbname='postgres', us
 connection.autocommit = True
 db_cursor = connection.cursor()
 
-db_sql = '''CREATE database customerOrders'''
+db_sql = '''CREATE database customerorders'''
 
 db_cursor.execute(db_sql)
 

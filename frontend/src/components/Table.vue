@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <table class="table table-striped table-bordered">
+    <table>
       <thead>
         <th>Order name</th>
         <th>Customer Company</th>
@@ -10,7 +10,7 @@
         <th>Total Amount</th>
       </thead>
       <tbody>
-        <tr v-for="order in orders" :key="order['OrderName']">
+        <tr v-for="order in currentPageItems" :key="order['OrderId']">
           <td>{{ order["OrderName"] }}</td>
           <td>{{ order["CustomerCompany"] }}</td>
           <td>{{ order["CustomerName"] }}</td>
@@ -26,11 +26,22 @@
 <script>
 export default {
   name: "Table",
-  props: { orders: Array },
+  props: { orders: Array, currentPageItems: Array },
 };
 </script>
 
 <style>
-.container {
+table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+td,
+th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+tr:hover {
+  background-color: #ddd;
 }
 </style>
