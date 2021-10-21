@@ -4,7 +4,7 @@ from decouple import config
 
 client = MongoClient("localhost", 27017, maxPoolSize=50)
 db = client['CustomerOrders']
-companies_col = db['customer_companies']
+companies_col = db['customer_companies'].find({})
 
 companies = []
 
@@ -41,7 +41,7 @@ order_list = []
 
 for order in order_items:
     i = 0
-    while i < len(orders) and order[i][0] != order[1]:
+    while i < len(orders) and orders[i][0] != order[1]:
         i += 1
     
     order_name = orders[i][2]
@@ -60,9 +60,14 @@ for order in order_items:
         i += 1
 
     company_name = companies[i]['company_name']
-    amount = int(order[3])*int(order[2])
+
+    if order[3] == None or order[2] == None:
+        amount = '-'
+    else:
+        amount = int(order[3])*float(order[2])
 
     list_item = {
+        "order_item_id": order[0],
         "order_name": order_name,
         "customer_company": company_name,
         "customer_name": customer_name,
@@ -73,3 +78,17 @@ for order in order_items:
 
     order_list.append(list_item)
 
+create_table = (
+    """
+    CREATE TABLE orderlist (
+        order_item_id INTEGER PRIMARY KEY,
+        order_name VARCHAR(10),
+        customer_company VARCHAR(30),
+        customer_name VARCHAR(30),
+        order_date TIMESTAMP NOT NULL,
+        delivered_amount FLOAT(6),
+        total_amount FLOAT(6)
+    )
+    """)
+
+db_cursor.execute(create_table)
