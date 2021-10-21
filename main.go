@@ -48,8 +48,16 @@ func main() {
 
 		sql := "SELECT * from public.orderlist"
 
-		if s := c.Query("s"); s != "" {
+		s := c.Query("s")
+		start := c.Query("start")
+		end := c.Query("end")
+		
+		if s != "" && start != "" && end != "" {
+			sql = fmt.Sprintf("%s WHERE (order_name LIKE '%%%s%%' AND order_date BETWEEN '%%%s%%' AND '%%%s%%')", sql, s, start, end)
+		} else if s != "" {
 			sql = fmt.Sprintf("%s WHERE order_name LIKE '%%%s%%'", sql, s)
+		} else if start != "" && end != "" {
+			sql = fmt.Sprintf("%s WHERE order_date BETWEEN '%%%s%%' AND '%%%s%%'", sql, start, end)
 		}
 
 		rows, err := db.Query(sql)
