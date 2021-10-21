@@ -10,7 +10,7 @@
         <th>Total Amount</th>
       </thead>
       <tbody>
-        <tr v-for="order in currentPageItems" :key="order['OrderName']">
+        <tr v-for="order in currentPageItems" :key="order['OrderId']">
           <td>{{ order["OrderName"] }}</td>
           <td>{{ order["CustomerCompany"] }}</td>
           <td>{{ order["CustomerName"] }}</td>
