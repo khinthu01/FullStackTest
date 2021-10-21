@@ -80,16 +80,6 @@ for order in order_items:
     else:
         amount = int(order[3])*float(order[2])
 
-    # list_item = {
-    #     "order_item_id": order[0],
-    #     "order_name": order_name,
-    #     "customer_company": company_name,
-    #     "customer_name": customer_name,
-    #     "order_date": order_date,
-    #     "delivered_amount": amount,
-    #     "total_amount": amount
-    # }
-
     insert_command = (
         """INSERT INTO orderlist(
             order_item_id,
