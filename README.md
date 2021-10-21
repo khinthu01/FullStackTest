@@ -11,6 +11,7 @@ pip install psycopg2
 pip install decouple
 ```
 
-Run files import_data_mongodb.py and import_data_postgres.py
+Then set up a .env file in the parent directory and create an environment variable called PASSWORD to hold the password for your postgres account. 
+Run files import_data_mongodb.py and import_data_postgres.py. Then run create_results.py. This will create a new table in your postgres database to hold the orders data in the format that will be presented. 
 
 ## Setup Instructions - Backend
