@@ -40,7 +40,7 @@ export default {
   computed: {
     filteredOrders() {
       return this.orders.filter((order) => {
-        return [order.OrderName.match(this.search)];
+        return order["OrderName"].match(this.search);
       });
     },
     paginatedItems() {
