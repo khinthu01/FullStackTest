@@ -1,5 +1,10 @@
 <template>
-  <input type="text" v-model="search" placeholder="search orders" />
+  <input
+    type="text"
+    v-model="search"
+    placeholder="search orders"
+    @change="searchOrders"
+  />
   <Table :currentPageItems="currentPageItems" />
   <span>Page:</span>
   <button
@@ -35,14 +40,13 @@ export default {
     const searchQuery = encodeURIComponent(this.search);
     const url = `http://localhost:8000/orders?s=${searchQuery}`;
 
-    console.log(url);
-
     const res = await axios.get(url, {
       responseType: "json",
     });
     const orders = res.data;
     this.orders = orders;
   },
+
   computed: {
     filteredOrders() {
       return this.orders.filter((order) => {
@@ -53,15 +57,12 @@ export default {
       let page = 1;
       return [].concat.apply(
         [],
-        this.filteredOrders.map((item, index) =>
+        this.orders.map((item, index) =>
           index % this.itemsPerPage
             ? []
             : {
                 page: page++,
-                orders: this.filteredOrders.slice(
-                  index,
-                  index + this.itemsPerPage
-                ),
+                orders: this.orders.slice(index, index + this.itemsPerPage),
               }
         )
       );
@@ -74,6 +75,16 @@ export default {
     },
   },
   methods: {
+    async searchOrders() {
+      const searchQuery = encodeURIComponent(this.search);
+      const url = `http://localhost:8000/orders?s=${searchQuery}`;
+
+      const res = await axios.get(url, {
+        responseType: "json",
+      });
+      const orders = res.data;
+      this.orders = orders;
+    },
     changePage(pageNumber) {
       if (pageNumber != this.currentPage) {
         this.currentPage = pageNumber;
