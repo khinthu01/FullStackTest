@@ -48,11 +48,6 @@ export default {
   },
 
   computed: {
-    filteredOrders() {
-      return this.orders.filter((order) => {
-        return order["OrderName"].match(this.search);
-      });
-    },
     paginatedItems() {
       let page = 1;
       return [].concat.apply(
