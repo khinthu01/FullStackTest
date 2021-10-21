@@ -28,10 +28,16 @@ export default {
       itemsPerPage: 5,
       orders: [],
       search: "",
+      datefilter: "",
     };
   },
   async created() {
-    const res = await axios.get("http://localhost:8080/orderList", {
+    const searchQuery = encodeURIComponent(this.search);
+    const url = `http://localhost:8000/orders?s=${searchQuery}`;
+
+    console.log(url);
+
+    const res = await axios.get(url, {
       responseType: "json",
     });
     const orders = res.data;
